@@ -2,14 +2,15 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/camolezi/MicroservicesGolang/src/domain"
-	"github.com/camolezi/MicroservicesGolang/src/errors"
 	servicesPkg "github.com/camolezi/MicroservicesGolang/src/services"
+	"github.com/camolezi/MicroservicesGolang/src/utils"
 )
 
 type servicesInterface interface {
-	GetPost(id uint64) (domain.Post, *errors.ErrorAPI)
+	GetPost(id uint64) (domain.Post, *utils.ErrorAPI)
 }
 
 var (
@@ -18,7 +19,7 @@ var (
 
 type services struct{}
 
-func (s *services) GetPost(id uint64) (domain.Post, *errors.ErrorAPI) {
+func (s *services) GetPost(id uint64) (domain.Post, *utils.ErrorAPI) {
 	return servicesPkg.GetPost(id)
 }
 
@@ -30,13 +31,29 @@ func init() {
 func GetPost(writer http.ResponseWriter, request *http.Request) {
 
 	//Get id from url- implement
-	id := 0
-	post, apiError := service.GetPost(uint64(id))
+	idString := request.URL.Query().Get("id")
 
-	//Error
+	if idString == "" {
+		//Serve default page
+		writer.Write([]byte("Default post will be here, or all posts"))
+		return
+	}
+
+	id, err := strconv.ParseUint(idString, 10, 64)
+
+	//Type error- id needs to be a number
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("id needs to be a number"))
+		return
+	}
+
+	post, apiError := service.GetPost(id)
+	//Api Error
 	if apiError != nil {
-		//Respond here with 404 not found
-		writer.WriteHeader(404) //Write error hero
+		writer.WriteHeader(apiError.ErrorCode) //Write error header
+		writer.Write([]byte(apiError.ErrorMessage))
+		return
 	}
 
 	writer.Write([]byte(post.Title))

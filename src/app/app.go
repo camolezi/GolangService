@@ -21,9 +21,10 @@ func logHandler(function http.HandlerFunc) http.HandlerFunc {
 
 //StartApp is the starting point of the application for now
 func StartApp() {
-	fmt.Println("Started server")
+	const port = ":8081"
+	fmt.Println("Started server on port " + port)
 	http.HandleFunc("/", logHandler(printHello))
 	http.HandleFunc("/post/", controllers.GetPost)
 
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Fatal(http.ListenAndServe(port, nil))
 }
