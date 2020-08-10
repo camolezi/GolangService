@@ -15,6 +15,7 @@ func (s *servicesTest) GetPost(id uint64) (domain.Post, *utils.ErrorAPI) {
 	return s.testGetPostFunction(id)
 }
 
+//Test not implemented yet
 func TestGetPost_Error(t *testing.T) {
 	//Mock a function that returns a error
 	serviceMock := &servicesTest{
@@ -24,7 +25,6 @@ func TestGetPost_Error(t *testing.T) {
 	}
 
 	service = serviceMock
-
 }
 
 func TestGetPost_Success(t *testing.T) {

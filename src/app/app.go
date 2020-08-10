@@ -8,23 +8,15 @@ import (
 	"github.com/camolezi/MicroservicesGolang/src/controllers"
 )
 
-func printHello(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(writer, "Hello World, %s!", request.URL.Path[1:])
-}
-
-func logHandler(function http.HandlerFunc) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Println("Hello, new request recived" + request.RequestURI)
-		function(writer, request)
-	}
-}
-
 //StartApp is the starting point of the application for now
 func StartApp() {
 	const port = ":8081"
 	fmt.Println("Started server on port " + port)
-	http.HandleFunc("/", logHandler(printHello))
-	http.HandleFunc("/post/", controllers.GetPost)
+	//http.HandleFunc("/", logHandler(printHello))
+
+	postHandler := withAnalytics(controllers.GetPost)
+	http.Handle("/post/", postHandler)
+	http.HandleFunc("/post", controllers.GetPost)
 
 	log.Fatal(http.ListenAndServe(port, nil))
 }

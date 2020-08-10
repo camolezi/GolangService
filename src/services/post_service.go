@@ -23,7 +23,7 @@ func init() {
 	domainVar = &domain{}
 }
 
-//GetPost return a post of the id
+//GetPost return a post of the specified id
 func GetPost(id uint64) (domainPkg.Post, *utils.ErrorAPI) {
 
 	post, resourceError := domainVar.GetPost(id)
