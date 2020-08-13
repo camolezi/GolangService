@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/camolezi/MicroservicesGolang/src/domain"
 	servicesPkg "github.com/camolezi/MicroservicesGolang/src/services"
@@ -27,11 +29,11 @@ func init() {
 	service = &services{}
 }
 
-//GetPost is a function to handle GET requests at /users
+//GetPost is a function to handle GET requests at /post
 func GetPost(writer http.ResponseWriter, request *http.Request) {
 
 	//Get id from url- implement
-	idString := request.URL.Query().Get("id")
+	idString := strings.TrimPrefix(request.URL.Path, "/post/")
 
 	if idString == "" {
 		//Serve default page
@@ -56,5 +58,12 @@ func GetPost(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	writer.Write([]byte(post.Title))
+	//for now trasnform to json here
+	postJSON, errJSON := json.Marshal(post)
+
+	if errJSON != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	writer.Write(postJSON)
 }

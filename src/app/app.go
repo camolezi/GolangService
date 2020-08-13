@@ -16,7 +16,7 @@ func StartApp() {
 
 	postHandler := withAnalytics(controllers.GetPost)
 	http.Handle("/post/", postHandler)
-	http.HandleFunc("/post", controllers.GetPost)
+	//http.HandleFunc("/post", controllers.GetPost)
 
 	log.Fatal(http.ListenAndServe(port, nil))
 }
