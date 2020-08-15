@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/camolezi/MicroservicesGolang/src/controllers"
+	"github.com/camolezi/MicroservicesGolang/src/handlers"
 )
 
 //StartApp is the starting point of the application for now
@@ -14,8 +14,8 @@ func StartApp() {
 	fmt.Println("Started server on port " + port)
 	//http.HandleFunc("/", logHandler(printHello))
 
-	postHandler := withAnalytics(controllers.GetPost)
-	http.Handle("/post/", postHandler)
+	//ostHandler := withAnalytics(handlers.NewPostHandler())
+	http.Handle("/post/", handlers.NewPostHandler())
 	//http.HandleFunc("/post", controllers.GetPost)
 
 	log.Fatal(http.ListenAndServe(port, nil))

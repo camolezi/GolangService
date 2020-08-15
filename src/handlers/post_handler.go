@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -38,8 +40,12 @@ func (p *PostHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 	case http.MethodGet:
 		getPost(writer, request)
 	case http.MethodPost:
-		postPost(writer, request)
+		addPost(writer, request)
+	default:
+		writer.WriteHeader(http.StatusMethodNotAllowed)
+		return
 	}
+
 }
 
 //getPost is a function to handle GET requests at /post
@@ -81,7 +87,7 @@ func getPost(writer http.ResponseWriter, request *http.Request) {
 	writer.Write(postJSON)
 }
 
-func postPost(writer http.ResponseWriter, request *http.Request) {
+func addPost(writer http.ResponseWriter, request *http.Request) {
 	//Get id from url- implement
 	idString := strings.TrimPrefix(request.URL.Path, "/post/")
 	if idString != "" {
@@ -91,23 +97,25 @@ func postPost(writer http.ResponseWriter, request *http.Request) {
 
 	//placeholder id
 	postID := time.Now().Unix()
-	postJSON, errJSON := json.Marshal(request.Body)
 
-	post, apiError := service.NewPost(postID, postJSON)
-	//Api Error
-	if apiError != nil {
-		writer.WriteHeader(apiError.ErrorCode) //Write error header
-		writer.Write([]byte(apiError.ErrorMessage))
-		return
-	}
+	newPost := domain.Post{}
 
-	//for now trasnform to json here
-	postJSON, errJSON := json.Marshal(post)
+	bodyData, _ := ioutil.ReadAll(request.Body)
+
+	errJSON := json.Unmarshal(bodyData, &newPost)
 
 	if errJSON != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Println("Error in post: " + errJSON.Error())
+		log.Println("data recived: " + string(bodyData))
+		writer.WriteHeader(http.StatusBadRequest)
+	} else {
+		log.Println(newPost.Title)
+		log.Println(postID)
 	}
-	writer.Write(postJSON)
 
+}
+
+//NewPostHandler return a new Post handler
+func NewPostHandler() *PostHandler {
+	return &PostHandler{}
 }

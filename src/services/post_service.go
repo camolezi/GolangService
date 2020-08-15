@@ -35,3 +35,7 @@ func GetPost(id uint64) (domainPkg.Post, *utils.ErrorAPI) {
 
 	return post, nil
 }
+
+func addPost() {
+
+}
