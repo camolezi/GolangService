@@ -7,6 +7,7 @@ import (
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
 	"github.com/camolezi/MicroservicesGolang/src/handlers"
+	"github.com/camolezi/MicroservicesGolang/src/middleware"
 )
 
 //Config defines a configuration for starting a App
@@ -40,8 +41,11 @@ func StartApp() {
 	}
 	logger := debug.NewLogger(logLevel)
 
+	//Create the middleware chain
+	postHandler := middleware.NewChain(handlers.NewPostHandler(logger), &middleware.LogMiddleware{Log: logger.Debug()})
+
 	serverMux := http.NewServeMux()
-	serverMux.Handle("/post/", handlers.NewPostHandler(logger))
+	serverMux.Handle("/post/", postHandler)
 
 	httpServer := &http.Server{
 		Addr:     *addr,

@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+//This is for logging errors and debug information during devlopment
+
 //LogLevel defines the level of logging of the aplication
 type LogLevel int
 
