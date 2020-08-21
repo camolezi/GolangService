@@ -99,7 +99,6 @@ func addPost(writer http.ResponseWriter, request *http.Request) {
 	postID := time.Now().Unix()
 
 	newPost := domain.Post{}
-
 	bodyData, _ := ioutil.ReadAll(request.Body)
 
 	errJSON := json.Unmarshal(bodyData, &newPost)
