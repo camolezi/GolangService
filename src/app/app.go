@@ -9,9 +9,14 @@ import (
 	"github.com/camolezi/MicroservicesGolang/src/handlers"
 )
 
+//Config defines a configuration for starting a App
+type Config struct {
+}
+
 //StartApp is the starting point of the application
 func StartApp() {
 
+	//Change this flag stuff for other place later
 	addr := flag.String("addr", ":8080", "Define the port that the server will be listening and serving")
 	logLevelString := flag.String("log", "debug",
 		`Define the level of application logging: 
@@ -31,25 +36,20 @@ func StartApp() {
 	case "error":
 		logLevel = debug.ErrorLevel
 	default:
-		log.Fatalln("Invalid Input for log flag, Options: debug,warning,error")
+		log.Fatalln("Invalid Input for log flag, Options: debug,warning,error. Use -help for more info")
 	}
-
 	logger := debug.NewLogger(logLevel)
 
 	serverMux := http.NewServeMux()
-	logger.Debug().Println("Starting server on port " + *addr)
-
-	//http.HandleFunc("/", logHandler(printHello))
-	//ostHandler := withAnalytics(handlers.NewPostHandler())
-
-	serverMux.Handle("/post/", handlers.NewPostHandler())
-	//http.HandleFunc("/post", controllers.GetPost)
+	serverMux.Handle("/post/", handlers.NewPostHandler(logger))
 
 	httpServer := &http.Server{
 		Addr:     *addr,
 		Handler:  serverMux,
 		ErrorLog: logger.Error(),
 	}
+
+	logger.Debug().Println("Starting server on port " + *addr)
 
 	if err := httpServer.ListenAndServe(); err != nil {
 		logger.Error().Fatal(err.Error())

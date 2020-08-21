@@ -9,38 +9,22 @@ import (
 	"strings"
 	"time"
 
+	"github.com/camolezi/MicroservicesGolang/src/debug"
 	"github.com/camolezi/MicroservicesGolang/src/domain"
-	servicesPkg "github.com/camolezi/MicroservicesGolang/src/services"
-	"github.com/camolezi/MicroservicesGolang/src/utils"
 )
-
-type servicesInterface interface {
-	GetPost(id uint64) (domain.Post, *utils.ErrorAPI)
-}
-
-var (
-	service servicesInterface
-)
-
-type services struct{}
-
-func (s *services) GetPost(id uint64) (domain.Post, *utils.ErrorAPI) {
-	return servicesPkg.GetPost(id)
-}
-
-func init() {
-	service = &services{}
-}
 
 //PostHandler is the handler for /post url
-type PostHandler struct{}
+type PostHandler struct {
+	log     debug.Logger
+	service servicesInterface
+}
 
 func (p *PostHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	switch request.Method {
 	case http.MethodGet:
-		getPost(writer, request)
+		p.getPost(writer, request)
 	case http.MethodPost:
-		addPost(writer, request)
+		p.addPost(writer, request)
 	default:
 		writer.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -49,7 +33,7 @@ func (p *PostHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 }
 
 //getPost is a function to handle GET requests at /post
-func getPost(writer http.ResponseWriter, request *http.Request) {
+func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request) {
 
 	//Get id from url- implement
 	idString := strings.TrimPrefix(request.URL.Path, "/post/")
@@ -69,7 +53,7 @@ func getPost(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	post, apiError := service.GetPost(id)
+	post, apiError := p.service.GetPost(id)
 	//Api Error
 	if apiError != nil {
 		writer.WriteHeader(apiError.ErrorCode) //Write error header
@@ -82,12 +66,13 @@ func getPost(writer http.ResponseWriter, request *http.Request) {
 
 	if errJSON != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
+		p.log.Error().Println(errJSON.Error())
 		return
 	}
 	writer.Write(postJSON)
 }
 
-func addPost(writer http.ResponseWriter, request *http.Request) {
+func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request) {
 	//Get id from url- implement
 	idString := strings.TrimPrefix(request.URL.Path, "/post/")
 	if idString != "" {
@@ -115,6 +100,6 @@ func addPost(writer http.ResponseWriter, request *http.Request) {
 }
 
 //NewPostHandler return a new Post handler
-func NewPostHandler() *PostHandler {
-	return &PostHandler{}
+func NewPostHandler(log debug.Logger) *PostHandler {
+	return &PostHandler{log: log, service: &servicesWrapper{}}
 }
