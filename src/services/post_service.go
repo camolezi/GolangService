@@ -36,6 +36,7 @@ func GetPost(id uint64) (domainPkg.Post, *utils.ErrorAPI) {
 	return post, nil
 }
 
-func addPost() {
-
+//NewPost trys to Create a new post
+func NewPost(id uint64, post domainPkg.Post) error {
+	return domainPkg.NewPost(id, post)
 }

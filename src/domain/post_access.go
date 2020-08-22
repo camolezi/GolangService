@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/camolezi/MicroservicesGolang/src/utils"
+import (
+	"errors"
+
+	"github.com/camolezi/MicroservicesGolang/src/utils"
+)
 
 //Mock database for now
 var dbMock = map[uint64]Post{
@@ -14,4 +18,15 @@ func GetPost(id uint64) (Post, error) {
 		return Post{}, &utils.ResourceError{ErrorMessage: "Post not Found"}
 	}
 	return post, nil
+}
+
+//NewPost creates a new post
+func NewPost(id uint64, post Post) error {
+	_, contain := dbMock[id]
+	if contain {
+		return errors.New("Post on this ID already exist")
+	}
+
+	dbMock[id] = post
+	return nil
 }

@@ -13,7 +13,7 @@ type LogMiddleware struct {
 func (l *LogMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		//Log the request
-		l.Log.Println(request.Method)
+		l.Log.Printf("Request: %v %v\n ", request.Method, request.URL)
 		//Call next function on the chain
 		next(writer, request)
 	}

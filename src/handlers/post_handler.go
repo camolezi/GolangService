@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -62,13 +60,15 @@ func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request)
 	}
 
 	//for now trasnform to json here
-	postJSON, errJSON := json.Marshal(post)
+	postJSON, errJSON := post.ToJSON()
 
 	if errJSON != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		p.log.Error().Println(errJSON.Error())
 		return
 	}
+
+	writer.Header().Set("Content-Type", "application/json")
 	writer.Write(postJSON)
 }
 
@@ -80,22 +80,31 @@ func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request)
 		return
 	}
 
-	//placeholder id
-	postID := time.Now().Unix()
-
 	newPost := domain.Post{}
 	bodyData, _ := ioutil.ReadAll(request.Body)
 
-	errJSON := json.Unmarshal(bodyData, &newPost)
+	errJSON := newPost.FromJSON(bodyData)
 
 	if errJSON != nil {
-		log.Println("Error in post: " + errJSON.Error())
-		log.Println("data recived: " + string(bodyData))
 		writer.WriteHeader(http.StatusBadRequest)
-	} else {
-		log.Println(newPost.Title)
-		log.Println(postID)
+		return
 	}
+
+	//placeholder id
+	postID := uint64(time.Now().Unix())
+	newPost.ID = postID
+
+	p.log.Debug().Printf("%v\n", newPost)
+
+	//Try to create new post
+	err := p.service.NewPost(postID, newPost)
+	if err != nil {
+		p.log.Error().Println(err.Error())
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusCreated)
 
 }
 
