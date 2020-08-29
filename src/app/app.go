@@ -20,8 +20,10 @@ func StartApp(config Config) {
 
 	logger := debug.NewLogger(config.LogLevel)
 
-	//Create the middleware chain
-	postHandler := middleware.NewChain(handlers.NewPostHandler(logger), &middleware.LogMiddleware{Log: logger.Debug()})
+	//Create the middleware chain for posts
+	postHandler := middleware.NewChain(handlers.NewPostHandler(logger),
+		&middleware.SecurityHeadersMiddleware{},
+		&middleware.LogMiddleware{Log: logger.Debug()})
 
 	serverMux := http.NewServeMux()
 	serverMux.Handle("/post/", postHandler)
