@@ -13,6 +13,7 @@ import (
 type servicesInterface interface {
 	GetPost(id uint64) (domain.Post, *utils.ErrorAPI)
 	NewPost(id uint64, post domain.Post) error
+	GetLatestPosts(numberOfPosts uint) ([]domain.Post, error)
 }
 
 //servicesWrapper is a wrapper for the actual services
@@ -24,4 +25,8 @@ func (s *servicesWrapper) GetPost(id uint64) (domain.Post, *utils.ErrorAPI) {
 
 func (s *servicesWrapper) NewPost(id uint64, post domain.Post) error {
 	return services.NewPost(id, post)
+}
+
+func (s *servicesWrapper) GetLatestPosts(numberOfPosts uint) ([]domain.Post, error) {
+	return services.GetLatestPosts(numberOfPosts)
 }

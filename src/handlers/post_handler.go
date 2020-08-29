@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -38,7 +39,16 @@ func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request)
 
 	if idString == "" {
 		//Serve default page
-		writer.Write([]byte("Default post will be here, or all posts"))
+		writer.Header().Set("Content-Type", "application/json")
+		posts, _ := p.service.GetLatestPosts(10)
+
+		postsJSON, err := json.Marshal(posts)
+
+		if err != nil {
+			p.log.Error().Println(err.Error())
+		}
+
+		writer.Write(postsJSON)
 		return
 	}
 

@@ -36,6 +36,11 @@ func GetPost(id uint64) (domainPkg.Post, *utils.ErrorAPI) {
 	return post, nil
 }
 
+//GetLatestPosts return a array with the latest posts created
+func GetLatestPosts(numberOfPosts uint) ([]domainPkg.Post, error) {
+	return domainPkg.GetLatestPosts(numberOfPosts)
+}
+
 //NewPost trys to Create a new post
 func NewPost(id uint64, post domainPkg.Post) error {
 	return domainPkg.NewPost(id, post)
