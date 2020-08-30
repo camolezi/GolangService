@@ -22,11 +22,17 @@ func StartApp(config Config) {
 
 	//Create the middleware chain for posts
 	postHandler := middleware.NewChain(handlers.NewPostHandler(logger),
+		&middleware.UserAuthMiddleware{},
+		&middleware.SecurityHeadersMiddleware{},
+		&middleware.LogMiddleware{Log: logger.Debug()})
+
+	loginHandler := middleware.NewChain(&handlers.LoginHandler{},
 		&middleware.SecurityHeadersMiddleware{},
 		&middleware.LogMiddleware{Log: logger.Debug()})
 
 	serverMux := http.NewServeMux()
 	serverMux.Handle("/post/", postHandler)
+	serverMux.Handle("/login", loginHandler)
 
 	httpServer := &http.Server{
 		Addr:     config.ServerAddr,

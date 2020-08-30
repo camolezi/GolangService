@@ -91,6 +91,8 @@ func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request)
 	}
 
 	newPost := domain.Post{}
+
+	//This need to be changed- must have a limit to size
 	bodyData, _ := ioutil.ReadAll(request.Body)
 
 	errJSON := newPost.FromJSON(bodyData)
