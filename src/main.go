@@ -34,9 +34,13 @@ func main() {
 		log.Fatalln("Invalid Input for log flag, Options: debug,warning,error. Use -help for more info")
 	}
 
+	//Secrekey is obviously a placeholder
+	Secrekey := []byte("mysuperscretekey")
+
 	appConfig := app.Config{
 		ServerAddr: *addr,
 		LogLevel:   logLevel,
+		JWTKey:     Secrekey,
 	}
 
 	app.StartApp(appConfig)

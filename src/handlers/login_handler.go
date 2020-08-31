@@ -5,13 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/camolezi/MicroservicesGolang/src/claims"
 	"github.com/camolezi/MicroservicesGolang/src/domain"
-	"github.com/camolezi/MicroservicesGolang/src/middleware"
 	"github.com/dgrijalva/jwt-go"
 )
 
 //LoginHandler handles login
 type LoginHandler struct {
+	JWTKey []byte
 }
 
 func (p *LoginHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -34,10 +35,10 @@ func (p *LoginHandler) authenticate(writer http.ResponseWriter, request *http.Re
 	user.FromJSON(bodyData)
 	log.Printf("%#v", user)
 
-	claims := middleware.Claims{Login: user.Login}
+	claims := claims.Claims{Login: user.Login}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(middleware.Secrekey))
+	signedToken, err := token.SignedString(p.JWTKey)
 
 	if err != nil {
 		log.Println(err.Error())

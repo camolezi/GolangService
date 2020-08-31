@@ -13,6 +13,7 @@ type Config struct {
 	ServerAddr string
 	LogLevel   debug.LogLevel
 	LogRequest bool
+	JWTKey     []byte
 }
 
 //StartApp is the starting point of the application
@@ -22,11 +23,11 @@ func StartApp(config Config) {
 
 	//Create the middleware chain for posts
 	postHandler := middleware.NewChain(handlers.NewPostHandler(logger),
-		&middleware.UserAuthMiddleware{},
+		&middleware.UserAuthMiddleware{JWTKey: config.JWTKey},
 		&middleware.SecurityHeadersMiddleware{},
 		&middleware.LogMiddleware{Log: logger.Debug()})
 
-	loginHandler := middleware.NewChain(&handlers.LoginHandler{},
+	loginHandler := middleware.NewChain(&handlers.LoginHandler{JWTKey: config.JWTKey},
 		&middleware.SecurityHeadersMiddleware{},
 		&middleware.LogMiddleware{Log: logger.Debug()})
 

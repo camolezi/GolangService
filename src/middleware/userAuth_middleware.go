@@ -4,20 +4,13 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/camolezi/MicroservicesGolang/src/claims"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
 //UserAuthMiddleware authenticate a user
 type UserAuthMiddleware struct {
-}
-
-//Secrekey is obviously a placeholder
-const Secrekey = "mysuperscretekey"
-
-//Claims define jtw clains
-type Claims struct {
-	Login string `json:"username"`
-	jwt.StandardClaims
+	JWTKey []byte
 }
 
 func (u *UserAuthMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {
@@ -29,9 +22,9 @@ func (u *UserAuthMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {
 
 		token, err := jwt.ParseWithClaims(
 			jtwToken,
-			&Claims{},
+			&claims.Claims{},
 			func(token *jwt.Token) (interface{}, error) {
-				return []byte(Secrekey), nil
+				return u.JWTKey, nil
 			})
 
 		if err != nil {
@@ -40,7 +33,7 @@ func (u *UserAuthMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		claims, ok := token.Claims.(*Claims)
+		claims, ok := token.Claims.(*claims.Claims)
 		if !ok {
 			writer.WriteHeader(http.StatusUnauthorized)
 			return
