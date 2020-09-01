@@ -6,6 +6,7 @@ import (
 	"github.com/camolezi/MicroservicesGolang/src/debug"
 	"github.com/camolezi/MicroservicesGolang/src/handlers"
 	"github.com/camolezi/MicroservicesGolang/src/middleware"
+	"github.com/camolezi/MicroservicesGolang/src/mux"
 )
 
 //Config defines a configuration for starting a App
@@ -31,9 +32,9 @@ func StartApp(config Config) {
 		&middleware.SecurityHeadersMiddleware{},
 		&middleware.LogMiddleware{Log: logger.Debug()})
 
-	serverMux := http.NewServeMux()
-	serverMux.Handle("/post/", postHandler)
-	serverMux.Handle("/login", loginHandler)
+	serverMux := mux.CreateNewServeMux()
+	serverMux.Get("/post/", postHandler)
+	serverMux.Post("/login", loginHandler)
 
 	httpServer := &http.Server{
 		Addr:     config.ServerAddr,
