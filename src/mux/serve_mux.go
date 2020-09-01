@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-//If this get too complex, we should replace it for a 3rd party router- like gorilla mux
+//If this get too complex or inefficient, we should replace it for a 3rd party router- like gorilla mux. In that case, it should be a drag and drop replacement.
 
 //ServeMux in custom type of mux
 type ServeMux struct {

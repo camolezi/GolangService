@@ -84,7 +84,7 @@ func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request)
 
 func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request) {
 	//Get id from url- implement
-	idString := strings.TrimPrefix(request.URL.Path, "/post/")
+	idString := strings.TrimPrefix(request.URL.Path, "/post")
 	if idString != "" {
 		writer.WriteHeader(http.StatusBadRequest)
 		return

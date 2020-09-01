@@ -22,18 +22,32 @@ func StartApp(config Config) {
 
 	logger := debug.NewLogger(config.LogLevel)
 
-	//Create the middleware chain for posts
-	postHandler := middleware.NewChain(handlers.NewPostHandler(logger),
-		&middleware.UserAuthMiddleware{JWTKey: config.JWTKey},
+	//This will be used in all routes
+	basicChain := middleware.NewMiddlewareChain(
 		&middleware.SecurityHeadersMiddleware{},
-		&middleware.LogMiddleware{Log: logger.Debug()})
+		&middleware.LogMiddleware{Log: logger.Debug()},
+	)
 
-	loginHandler := middleware.NewChain(&handlers.LoginHandler{JWTKey: config.JWTKey},
-		&middleware.SecurityHeadersMiddleware{},
-		&middleware.LogMiddleware{Log: logger.Debug()})
+	//Create the middleware chain for posts
+	postPostHandler := middleware.NewChain(
+		handlers.NewPostHandler(logger),
+		&middleware.UserAuthMiddleware{JWTKey: config.JWTKey},
+		basicChain,
+	)
+
+	getPostHandler := middleware.NewChain(
+		handlers.NewPostHandler(logger),
+		basicChain,
+	)
+
+	loginHandler := middleware.NewChain(
+		&handlers.LoginHandler{JWTKey: config.JWTKey},
+		basicChain,
+	)
 
 	serverMux := mux.CreateNewServeMux()
-	serverMux.Get("/post/", postHandler)
+	serverMux.Get("/post/", getPostHandler)
+	serverMux.Post("/post", postPostHandler)
 	serverMux.Post("/login", loginHandler)
 
 	httpServer := &http.Server{
