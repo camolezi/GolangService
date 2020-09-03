@@ -7,7 +7,7 @@ import (
 
 //If this get too complex or inefficient, we should replace it for a 3rd party router- like gorilla mux. In that case, it should be a drag and drop replacement.
 
-//ServeMux in custom type of mux
+//ServeMux in custom type of mux- this is thread safe, since we are only reading the map
 type ServeMux struct {
 	httpMux map[string]*http.ServeMux
 	log     *log.Logger

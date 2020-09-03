@@ -11,10 +11,11 @@ import (
 
 //Config defines a configuration for starting a App
 type Config struct {
-	ServerAddr string
-	LogLevel   debug.LogLevel
-	LogRequest bool
-	JWTKey     []byte
+	ServerAddr    string
+	LogLevel      debug.LogLevel
+	LogRequest    bool
+	JWTKey        []byte
+	RefreshJTWKey []byte
 }
 
 //StartApp is the starting point of the application
@@ -31,7 +32,9 @@ func StartApp(config Config) {
 	//Create the middleware chain for posts
 	postPostHandler := middleware.NewChain(
 		handlers.NewPostHandler(logger),
-		&middleware.UserAuthMiddleware{JWTKey: config.JWTKey},
+		&middleware.UserAuthMiddleware{
+			JWTKey:        config.JWTKey,
+			RefreshJTWKey: config.RefreshJTWKey},
 		basicChain,
 	)
 
@@ -41,7 +44,14 @@ func StartApp(config Config) {
 	)
 
 	loginHandler := middleware.NewChain(
-		&handlers.LoginHandler{JWTKey: config.JWTKey},
+		&handlers.LoginHandler{
+			JWTKey:        config.JWTKey,
+			RefreshJTWKey: config.RefreshJTWKey},
+		basicChain,
+	)
+
+	userHandler := middleware.NewChain(
+		&handlers.UserHandler{},
 		basicChain,
 	)
 
@@ -49,6 +59,7 @@ func StartApp(config Config) {
 	serverMux.Get("/post/", getPostHandler)
 	serverMux.Post("/post", postPostHandler)
 	serverMux.Post("/login", loginHandler)
+	serverMux.Post("/user", userHandler)
 
 	httpServer := &http.Server{
 		Addr:     config.ServerAddr,

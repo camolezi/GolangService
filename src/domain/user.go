@@ -7,7 +7,7 @@ type User struct {
 	Login          string `json:"login"`
 	Name           string `json:"title"`
 	Email          string `json:"email"`
-	HashedPassword string //this should not be in this struct in the future
+	HashedPassword []byte `json:"password"` //this should not be in this struct in the future
 }
 
 //FromJSON Create a new user object from a json

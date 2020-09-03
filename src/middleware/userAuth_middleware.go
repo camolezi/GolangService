@@ -10,7 +10,8 @@ import (
 
 //UserAuthMiddleware authenticate a user
 type UserAuthMiddleware struct {
-	JWTKey []byte
+	JWTKey        []byte
+	RefreshJTWKey []byte
 }
 
 func (u *UserAuthMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {

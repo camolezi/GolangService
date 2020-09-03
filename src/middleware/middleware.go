@@ -7,9 +7,6 @@ type Middleware interface {
 	execute(next http.HandlerFunc) http.HandlerFunc
 }
 
-//A final handler function that does nothing
-func doNothingHandler(writer http.ResponseWriter, request *http.Request) {}
-
 //NewChain creates a new chain of middlewares with a final handler
 /*
 	Last is the last Middleware in call stack, the rest will be called in inverse order- (The last parameter is the first to be called)
@@ -25,6 +22,10 @@ func NewChain(finalHandler http.Handler, last Middleware, chain ...Middleware) h
 	return http.HandlerFunc(middlewareChain)
 }
 
+//A final handler function that does nothing.
+func doNothingHandler(writer http.ResponseWriter, request *http.Request) {}
+
+//basicMiddlware is used as a intermediate middleware, before adding a Handler
 type basicMiddlware struct {
 	hadlerFunction http.HandlerFunc
 }

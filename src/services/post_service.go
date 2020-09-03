@@ -13,14 +13,14 @@ type domainInterface interface {
 
 var domainVar domainInterface
 
-type domain struct{}
+type domains struct{}
 
-func (*domain) GetPost(id uint64) (domainPkg.Post, error) {
+func (*domains) GetPost(id uint64) (domainPkg.Post, error) {
 	return domainPkg.GetPost(id)
 }
 
 func init() {
-	domainVar = &domain{}
+	domainVar = &domains{}
 }
 
 //GetPost return a post of the specified id
