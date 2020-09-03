@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/camolezi/MicroservicesGolang/src/domain"
+	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/services"
 )
 
@@ -32,6 +32,6 @@ func (u *UserHandler) registerUser(writer http.ResponseWriter, request *http.Req
 		return
 	}
 
-	services.CreateNewUser(domain.User{Login: user.Login}, user.Password)
+	services.CreateNewUser(model.User{Login: user.Login}, user.Password)
 	writer.WriteHeader(http.StatusCreated)
 }

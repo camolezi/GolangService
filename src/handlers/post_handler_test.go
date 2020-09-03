@@ -3,15 +3,15 @@ package handlers
 import (
 	"testing"
 
-	"github.com/camolezi/MicroservicesGolang/src/domain"
+	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/utils"
 )
 
 type servicesTest struct {
-	testGetPostFunction func(uint64) (domain.Post, *utils.ErrorAPI)
+	testGetPostFunction func(uint64) (model.Post, *utils.ErrorAPI)
 }
 
-func (s *servicesTest) GetPost(id uint64) (domain.Post, *utils.ErrorAPI) {
+func (s *servicesTest) GetPost(id uint64) (model.Post, *utils.ErrorAPI) {
 	return s.testGetPostFunction(id)
 }
 

@@ -4,23 +4,23 @@ import (
 	"net/http"
 	"testing"
 
-	domainPkg "github.com/camolezi/MicroservicesGolang/src/domain"
+	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/utils"
 )
 
 type domainMock struct {
-	GetPostMockFunction func(id uint64) (domainPkg.Post, error)
+	GetPostMockFunction func(id uint64) (model.Post, error)
 }
 
-func (d *domainMock) GetPost(id uint64) (domainPkg.Post, error) {
+func (d *domainMock) GetPost(id uint64) (model.Post, error) {
 	return d.GetPostMockFunction(id)
 }
 
 func TestGetPost_Error(t *testing.T) {
 	mock := &domainMock{
-		GetPostMockFunction: func(id uint64) (domainPkg.Post, error) {
+		GetPostMockFunction: func(id uint64) (model.Post, error) {
 			//Does not find the post with specified id
-			return domainPkg.Post{}, &utils.ResourceError{ErrorMessage: "Error message"}
+			return model.Post{}, &utils.ResourceError{ErrorMessage: "Error message"}
 		},
 	}
 
@@ -43,12 +43,12 @@ func TestGetPost_Error(t *testing.T) {
 
 func TestGetPost_Success(t *testing.T) {
 	mock := &domainMock{
-		GetPostMockFunction: func(id uint64) (domainPkg.Post, error) {
+		GetPostMockFunction: func(id uint64) (model.Post, error) {
 			//Does not find the post with specified id
 			if id == 0 {
-				return domainPkg.Post{ID: 0, Title: "This is not a real post"}, nil
+				return model.Post{ID: 0, Title: "This is not a real post"}, nil
 			}
-			return domainPkg.Post{}, &utils.ResourceError{ErrorMessage: "Error message"}
+			return model.Post{}, &utils.ResourceError{ErrorMessage: "Error message"}
 		},
 	}
 	domainVar = mock

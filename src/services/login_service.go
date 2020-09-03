@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 
-	"github.com/camolezi/MicroservicesGolang/src/domain"
+	"github.com/camolezi/MicroservicesGolang/src/services/data"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,7 +12,7 @@ func CheckUserCredentials(username string, password []byte) (bool, error) {
 	//Maybe we want to do this asynchronous
 
 	//This is the password from the db
-	user, err := domain.GetUser(username)
+	user, err := data.GetUser(username)
 
 	if err != nil {
 		return false, errors.New("User not found")

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
-	"github.com/camolezi/MicroservicesGolang/src/domain"
+	"github.com/camolezi/MicroservicesGolang/src/model"
 )
 
 //PostHandler is the handler for /post url
@@ -90,7 +90,7 @@ func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request)
 		return
 	}
 
-	newPost := domain.Post{}
+	newPost := model.Post{}
 
 	//This need to be changed- must have a limit to size
 	bodyData, _ := ioutil.ReadAll(request.Body)
