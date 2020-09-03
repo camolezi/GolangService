@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+)
 
 //Post is a struct representing one post
 type Post struct {
@@ -14,12 +17,19 @@ type PostBody struct {
 	Text string `json:"text"`
 }
 
-//ToJSON return JSON representation of the object
-func (p *Post) ToJSON() ([]byte, error) {
+//ToJSONData return JSON representation of the object
+func (p *Post) ToJSONData() ([]byte, error) {
 	return json.Marshal(*p)
 }
 
-//FromJSON Create a new post object from a json
-func (p *Post) FromJSON(data []byte) error {
+//FromJSONData Create a new post object from a json
+func (p *Post) FromJSONData(data []byte) error {
 	return json.Unmarshal(data, p)
+}
+
+//FromIOReader Creates a new post from a IOReader
+func (p *Post) FromIOReader(reader io.Reader) error {
+	decoder := json.NewDecoder(reader)
+	decoder.DisallowUnknownFields()
+	return decoder.Decode(p)
 }

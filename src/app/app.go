@@ -46,12 +46,13 @@ func StartApp(config Config) {
 	loginHandler := middleware.NewChain(
 		&handlers.LoginHandler{
 			JWTKey:        config.JWTKey,
-			RefreshJTWKey: config.RefreshJTWKey},
+			RefreshJTWKey: config.RefreshJTWKey,
+			Log:           logger},
 		basicChain,
 	)
 
 	userHandler := middleware.NewChain(
-		&handlers.UserHandler{},
+		&handlers.UserHandler{Log: logger},
 		basicChain,
 	)
 

@@ -2,36 +2,42 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
+	"github.com/camolezi/MicroservicesGolang/src/debug"
+	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
 	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/services"
 )
 
 //UserHandler is the handler for the user route
 type UserHandler struct {
+	Log debug.Logger
 }
 
 func (u *UserHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	u.registerUser(writer, request)
 }
 
-func (u *UserHandler) registerUser(writer http.ResponseWriter, request *http.Request) {
+func (u *UserHandler) registerUser(defaultWriter http.ResponseWriter, request *http.Request) {
+	response := response.CreateResponse(defaultWriter, u.Log)
 
 	user := struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}{}
+	err := json.NewDecoder(request.Body).Decode(&user)
 
-	bodyData, _ := ioutil.ReadAll(request.Body)
-
-	err := json.Unmarshal(bodyData, &user)
 	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
+		response.BadRequest(err.Error())
 		return
 	}
 
-	services.CreateNewUser(model.User{Login: user.Login}, user.Password)
-	writer.WriteHeader(http.StatusCreated)
+	err = services.CreateNewUser(model.User{Login: user.Login}, user.Password)
+
+	if err != nil {
+		response.ServerError(err.Error())
+		return
+	}
+	response.Created(nil)
 }

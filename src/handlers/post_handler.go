@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -34,7 +33,6 @@ func (p *PostHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 
 //getPost is a function to handle GET requests at /post
 func (p *PostHandler) getPost(defaultWriter http.ResponseWriter, request *http.Request) {
-
 	response := response.CreateResponse(defaultWriter, p.log)
 
 	//Get id from url- implement
@@ -42,7 +40,6 @@ func (p *PostHandler) getPost(defaultWriter http.ResponseWriter, request *http.R
 
 	if idString == "" {
 		//Serve default page
-
 		posts, _ := p.service.GetLatestPosts(10)
 		postsJSON, err := json.Marshal(posts)
 
@@ -70,7 +67,7 @@ func (p *PostHandler) getPost(defaultWriter http.ResponseWriter, request *http.R
 	}
 
 	//for now trasnform to json here
-	postJSON, errJSON := post.ToJSON()
+	postJSON, errJSON := post.ToJSONData()
 
 	if errJSON != nil {
 		response.WriteError(http.StatusInternalServerError, errJSON.Error())
@@ -81,42 +78,43 @@ func (p *PostHandler) getPost(defaultWriter http.ResponseWriter, request *http.R
 	response.WriteJSON(postJSON)
 }
 
-func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request) {
+func (p *PostHandler) addPost(defaultWriter http.ResponseWriter, request *http.Request) {
+	response := response.CreateResponse(defaultWriter, p.log)
+
 	//Get id from url- implement
 	idString := strings.TrimPrefix(request.URL.Path, "/post")
 	if idString != "" {
-		writer.WriteHeader(http.StatusBadRequest)
+		response.WriteStatusCode(http.StatusBadRequest)
 		return
 	}
 
 	newPost := model.Post{}
-
-	//This need to be changed- must have a limit to size
-	bodyData, _ := ioutil.ReadAll(request.Body)
-
-	errJSON := newPost.FromJSON(bodyData)
+	errJSON := newPost.FromIOReader(request.Body)
 
 	if errJSON != nil {
-		writer.WriteHeader(http.StatusBadRequest)
+		response.BadRequest(errJSON.Error())
 		return
 	}
 
 	//placeholder id
-	postID := uint64(time.Now().Unix())
+	postID := uint64(time.Now().Unix()) //This should be probably be coming from the database
 	newPost.ID = postID
-
-	p.log.Debug().Printf("%v\n", newPost)
 
 	//Try to create new post
 	err := p.service.NewPost(postID, newPost)
 	if err != nil {
-		p.log.Error().Println(err.Error())
-		writer.WriteHeader(http.StatusInternalServerError)
+		response.ServerError(err.Error())
 		return
 	}
 
-	writer.WriteHeader(http.StatusCreated)
+	//Return the newly craeted object
+	returnData, err := newPost.ToJSONData()
+	if err != nil {
+		response.ServerError(err.Error())
+		return
+	}
 
+	response.Created(returnData)
 }
 
 //NewPostHandler return a new Post handler

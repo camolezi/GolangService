@@ -35,16 +35,30 @@ func (r *Response) WriteJSON(data []byte) {
 	r.write(data)
 }
 
+//WriteError writes a generic error to the reponse
+func (r *Response) WriteError(status int, err string) {
+	r.WriteStatusCode(status)
+	r.write([]byte(err))
+}
+
+//Standard http responses
+
 //BadRequest Writes a status badrequest and a err message
 func (r *Response) BadRequest(err string) {
 	r.WriteStatusCode(http.StatusBadRequest)
 	r.write([]byte(err))
 }
 
-//WriteError writes a generic error to the reponse
-func (r *Response) WriteError(status int, err string) {
-	r.WriteStatusCode(status)
-	r.write([]byte(err))
+//ServerError returns internalServerError status code and log the error
+func (r *Response) ServerError(err string) {
+	r.WriteStatusCode(http.StatusInternalServerError)
+	r.log.Error().Println(err)
+}
+
+//Created returns http created status code and write the newly created object
+func (r *Response) Created(data []byte) {
+	r.WriteStatusCode(http.StatusCreated)
+	r.WriteJSON(data)
 }
 
 //CreateResponse returns a new response object
