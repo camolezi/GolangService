@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
+	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
 	"github.com/camolezi/MicroservicesGolang/src/model"
 )
 
@@ -32,23 +33,24 @@ func (p *PostHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 }
 
 //getPost is a function to handle GET requests at /post
-func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request) {
+func (p *PostHandler) getPost(defaultWriter http.ResponseWriter, request *http.Request) {
+
+	response := response.CreateResponse(defaultWriter, p.log)
 
 	//Get id from url- implement
 	idString := strings.TrimPrefix(request.URL.Path, "/post/")
 
 	if idString == "" {
 		//Serve default page
-		writer.Header().Set("Content-Type", "application/json")
-		posts, _ := p.service.GetLatestPosts(10)
 
+		posts, _ := p.service.GetLatestPosts(10)
 		postsJSON, err := json.Marshal(posts)
 
 		if err != nil {
 			p.log.Error().Println(err.Error())
 		}
 
-		writer.Write(postsJSON)
+		response.WriteJSON(postsJSON)
 		return
 	}
 
@@ -56,16 +58,14 @@ func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request)
 
 	//Type error- id needs to be a number
 	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte("id needs to be a number"))
+		response.BadRequest("id needs to be a number")
 		return
 	}
 
 	post, apiError := p.service.GetPost(id)
 	//Api Error
 	if apiError != nil {
-		writer.WriteHeader(apiError.ErrorCode) //Write error header
-		writer.Write([]byte(apiError.ErrorMessage))
+		response.WriteError(apiError.ErrorCode, apiError.ErrorMessage)
 		return
 	}
 
@@ -73,13 +73,12 @@ func (p *PostHandler) getPost(writer http.ResponseWriter, request *http.Request)
 	postJSON, errJSON := post.ToJSON()
 
 	if errJSON != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
+		response.WriteError(http.StatusInternalServerError, errJSON.Error())
 		p.log.Error().Println(errJSON.Error())
 		return
 	}
 
-	writer.Header().Set("Content-Type", "application/json")
-	writer.Write(postJSON)
+	response.WriteJSON(postJSON)
 }
 
 func (p *PostHandler) addPost(writer http.ResponseWriter, request *http.Request) {

@@ -17,7 +17,7 @@ var domainVar domainInterface
 type domains struct{}
 
 func (*domains) GetPost(id uint64) (model.Post, error) {
-	return data.getPost(id)
+	return data.GetPost(id)
 }
 
 func init() {
