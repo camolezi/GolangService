@@ -38,6 +38,7 @@ func (r *Response) WriteJSON(data []byte) {
 //WriteError writes a generic error to the reponse
 func (r *Response) WriteError(status int, err string) {
 	r.WriteStatusCode(status)
+	r.write([]byte(http.StatusText(status) + "\n\n"))
 	r.write([]byte(err))
 }
 
@@ -45,13 +46,12 @@ func (r *Response) WriteError(status int, err string) {
 
 //BadRequest Writes a status badrequest and a err message
 func (r *Response) BadRequest(err string) {
-	r.WriteStatusCode(http.StatusBadRequest)
-	r.write([]byte(err))
+	r.WriteError(http.StatusBadRequest, err)
 }
 
 //ServerError returns internalServerError status code and log the error
 func (r *Response) ServerError(err string) {
-	r.WriteStatusCode(http.StatusInternalServerError)
+	r.WriteError(http.StatusInternalServerError, "")
 	r.log.Error().Println(err)
 }
 

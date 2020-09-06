@@ -46,7 +46,7 @@ func (p *LoginHandler) authenticate(defaultWriter http.ResponseWriter, request *
 		return
 	}
 
-	_, err = services.CheckUserCredentials(user.Login, []byte(user.Password))
+	err = services.CheckUserCredentials(user.Login, []byte(user.Password))
 
 	if err != nil {
 		response.WriteStatusCode(http.StatusUnauthorized)
@@ -56,7 +56,7 @@ func (p *LoginHandler) authenticate(defaultWriter http.ResponseWriter, request *
 	claims := claims.Claims{
 		Login: user.Login,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Second * 30).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 	}

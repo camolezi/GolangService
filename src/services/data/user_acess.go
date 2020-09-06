@@ -2,6 +2,7 @@ package data
 
 import (
 	"errors"
+	"log"
 
 	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/utils"
@@ -18,6 +19,7 @@ func CreateUser(newUser model.User) error {
 	}
 
 	userdbmock[newUser.Login] = newUser
+	PrintUsers()
 	return nil
 }
 
@@ -28,5 +30,9 @@ func GetUser(login string) (model.User, error) {
 		return model.User{}, &utils.ResourceError{ErrorMessage: "User not Found"}
 	}
 	return user, nil
+}
 
+//PrintUsers is just debug for now
+func PrintUsers() {
+	log.Printf("%#v", userdbmock)
 }

@@ -22,6 +22,7 @@ func (u *UserHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 func (u *UserHandler) registerUser(defaultWriter http.ResponseWriter, request *http.Request) {
 	response := response.CreateResponse(defaultWriter, u.Log)
 
+	u.Log.Debug().Println(request.Body)
 	user := struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
