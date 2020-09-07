@@ -13,13 +13,9 @@ type Response struct {
 	log    debug.Logger
 }
 
-//WriteHeader write a header to a response(prefer not using this directly)
-func (r *Response) WriteHeader(headerKey string, value string) {
-	r.writer.Header().Set(headerKey, value)
-}
-
 //WriteStatusCode manualy sets the status code
-func (r *Response) WriteStatusCode(status int) {
+//Only call this after seeting all headers in the header map
+func (r *Response) writeStatusCode(status int) {
 	r.writer.WriteHeader(status)
 }
 
@@ -30,32 +26,42 @@ func (r *Response) write(data []byte) {
 	}
 }
 
-//WriteJSON write json to the response and set header type to json
+//WriteHeader write a header to a response(prefer not using this directly)- call this before WriteJSON
+func (r *Response) WriteHeader(headerKey string, value string) {
+	r.writer.Header().Set(headerKey, value)
+}
+
+//WriteJSON write json to the response and set header type to json- status code is 200ok
 func (r *Response) WriteJSON(data []byte) {
 	r.WriteHeader("Content-Type", "application/json")
 	r.write(data)
 }
 
+//WriteJSONWithStatusCode write a json and a status code to the response
+func (r *Response) WriteJSONWithStatusCode(data []byte, status int) {
+	r.WriteHeader("Content-Type", "application/json")
+	r.writeStatusCode(status)
+	r.write(data)
+}
+
 //WriteError writes a generic error to the reponse
 func (r *Response) WriteError(status int, err string) {
-	r.WriteStatusCode(status)
-
 	errorStruct := struct {
-		status      string
-		description string
-	}{status: http.StatusText(status), description: err}
+		Status      string `json:"status"`
+		Description string `json:"description"`
+	}{Status: http.StatusText(status), Description: err}
 
 	errorJSON, errMarshal := json.Marshal(errorStruct)
 
 	if errMarshal != nil {
-		r.log.Error().Println(errMarshal)
+		r.log.Error().Println(errMarshal.Error())
 		return
 	}
 
-	r.WriteJSON(errorJSON)
+	r.WriteJSONWithStatusCode(errorJSON, status)
 }
 
-//Standard http responses
+//Standard http responses- Use these
 
 //BadRequest Writes a status badrequest and a err message
 func (r *Response) BadRequest(err string) {
@@ -70,8 +76,7 @@ func (r *Response) ServerError(err string) {
 
 //Created returns http created status code and write the newly created object
 func (r *Response) Created(data []byte) {
-	r.WriteStatusCode(http.StatusCreated)
-	r.WriteJSON(data)
+	r.WriteJSONWithStatusCode(data, http.StatusCreated)
 }
 
 //CreateResponse returns a new response object

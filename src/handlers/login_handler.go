@@ -49,7 +49,7 @@ func (p *LoginHandler) authenticate(defaultWriter http.ResponseWriter, request *
 	err = services.CheckUserCredentials(user.Login, []byte(user.Password))
 
 	if err != nil {
-		response.WriteStatusCode(http.StatusUnauthorized)
+		response.WriteError(http.StatusUnauthorized, "")
 		return
 	}
 

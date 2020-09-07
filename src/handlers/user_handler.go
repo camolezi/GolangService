@@ -35,13 +35,8 @@ func (u *UserHandler) registerUser(defaultWriter http.ResponseWriter, defaultReq
 		Password string `json:"password"`
 	}{}
 
-	requestBody, err := request.GetBody()
-	if err != nil {
-		response.BadRequest(err.Error())
-		return
-	}
-
-	err = json.NewDecoder(requestBody).Decode(&user)
+	requestBody := request.GetBody()
+	err := json.NewDecoder(requestBody).Decode(&user)
 	if err != nil {
 		response.BadRequest(err.Error())
 		return
@@ -49,7 +44,8 @@ func (u *UserHandler) registerUser(defaultWriter http.ResponseWriter, defaultReq
 
 	err = services.CreateNewUser(model.User{Login: user.Login}, user.Password)
 	if err != nil {
-		response.ServerError(err.Error())
+		u.Log.Error().Println(err.Error())
+		response.BadRequest(err.Error())
 		return
 	}
 

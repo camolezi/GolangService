@@ -23,8 +23,8 @@ func (r *Request) VerifyHeader(key string, value string) bool {
 }
 
 //GetBody returns http request body
-func (r *Request) GetBody() (io.ReadCloser, error) {
-	return r.request.GetBody()
+func (r *Request) GetBody() io.ReadCloser {
+	return r.request.Body
 }
 
 //NewRequest creates a new Request utility
