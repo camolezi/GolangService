@@ -1,18 +1,33 @@
 package request
 
-import "net/http"
+import (
+	"io"
+	"net/http"
+
+	"github.com/camolezi/MicroservicesGolang/src/debug"
+)
 
 //Request is a class utility for helping handling with http requests
 type Request struct {
 	request *http.Request
+	log     debug.Logger
 }
 
-//CheckHeader is a utility for helping checking headers in requests
-func (r *Request) CheckHeader(key string, value string) {
+//VerifyHeader is a utility for helping checking headers in requests
+func (r *Request) VerifyHeader(key string, value string) bool {
+	if header := r.request.Header.Get(key); header == value {
+		return true
+	}
 
+	return false
+}
+
+//GetBody returns http request body
+func (r *Request) GetBody() (io.ReadCloser, error) {
+	return r.request.GetBody()
 }
 
 //NewRequest creates a new Request utility
-func NewRequest(request *http.Request) *Request {
-	return &Request{request: request}
+func CreateRequest(request *http.Request, log debug.Logger) *Request {
+	return &Request{request: request, log: log}
 }

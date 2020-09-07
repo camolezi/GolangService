@@ -1,6 +1,7 @@
 package response
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
@@ -38,8 +39,20 @@ func (r *Response) WriteJSON(data []byte) {
 //WriteError writes a generic error to the reponse
 func (r *Response) WriteError(status int, err string) {
 	r.WriteStatusCode(status)
-	r.write([]byte(http.StatusText(status) + "\n\n"))
-	r.write([]byte(err))
+
+	errorStruct := struct {
+		status      string
+		description string
+	}{status: http.StatusText(status), description: err}
+
+	errorJSON, errMarshal := json.Marshal(errorStruct)
+
+	if errMarshal != nil {
+		r.log.Error().Println(errMarshal)
+		return
+	}
+
+	r.WriteJSON(errorJSON)
 }
 
 //Standard http responses

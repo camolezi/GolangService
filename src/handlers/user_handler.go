@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
+	"github.com/camolezi/MicroservicesGolang/src/handlers/request"
 	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
 	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/services"
@@ -19,26 +20,38 @@ func (u *UserHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 	u.registerUser(writer, request)
 }
 
-func (u *UserHandler) registerUser(defaultWriter http.ResponseWriter, request *http.Request) {
-	response := response.CreateResponse(defaultWriter, u.Log)
+func (u *UserHandler) registerUser(defaultWriter http.ResponseWriter, defaultRequest *http.Request) {
 
-	u.Log.Debug().Println(request.Body)
+	response := response.CreateResponse(defaultWriter, u.Log)
+	request := request.CreateRequest(defaultRequest, u.Log)
+
+	if !request.VerifyHeader("Content-Type", "application/json") {
+		response.BadRequest("Content-Type must be JSON")
+		return
+	}
+
 	user := struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}{}
-	err := json.NewDecoder(request.Body).Decode(&user)
 
+	requestBody, err := request.GetBody()
+	if err != nil {
+		response.BadRequest(err.Error())
+		return
+	}
+
+	err = json.NewDecoder(requestBody).Decode(&user)
 	if err != nil {
 		response.BadRequest(err.Error())
 		return
 	}
 
 	err = services.CreateNewUser(model.User{Login: user.Login}, user.Password)
-
 	if err != nil {
 		response.ServerError(err.Error())
 		return
 	}
+
 	response.Created(nil)
 }
