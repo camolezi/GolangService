@@ -1,20 +1,58 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
+	"time"
 
+	"github.com/camolezi/MicroservicesGolang/src/claims"
 	"github.com/camolezi/MicroservicesGolang/src/debug"
+	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
+	"github.com/dgrijalva/jwt-go"
 )
 
 //RefreshHandler is the handler to refresh access token
 type RefreshHandler struct {
-	Log debug.Logger
+	Log    debug.Logger
+	JWTKey []byte
 }
 
 func (u *RefreshHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	u.refreshToken(writer, request)
 }
 
-func (u *RefreshHandler) refreshToken(defaultWriter http.ResponseWriter, request *http.Request) {
+func (u *RefreshHandler) refreshToken(defaultWriter http.ResponseWriter, defaultRequest *http.Request) {
+
+	response := response.CreateResponse(defaultWriter, u.Log)
+	//request := request.CreateRequest(defaultRequest, u.Log)
+
+	//Create token
+	claims := claims.Claims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(u.JWTKey)
+
+	if err != nil {
+		response.ServerError(err.Error())
+		return
+	}
+
+	//Return the token
+	tokenStruct := struct {
+		AccessToken string `json:"acessToken"`
+	}{AccessToken: signedToken}
+
+	tokenJSON, err := json.Marshal(tokenStruct)
+	if err != nil {
+		response.ServerError(err.Error())
+		return
+	}
+
+	response.WriteJSON(tokenJSON)
 
 }

@@ -56,11 +56,20 @@ func StartApp(config Config) {
 		basicChain,
 	)
 
+	refreshHandler := middleware.NewChain(
+		&handlers.RefreshHandler{Log: logger, JWTKey: config.JWTKey},
+		&middleware.UserAuthMiddleware{
+			JWTKey:        config.JWTKey,
+			RefreshJTWKey: config.RefreshJTWKey},
+		basicChain,
+	)
+
 	serverMux := mux.CreateNewServeMux()
 	serverMux.Get("/post/", getPostHandler)
 	serverMux.Post("/post", postPostHandler)
 	serverMux.Post("/login", loginHandler)
 	serverMux.Post("/user", userHandler)
+	serverMux.Post("/refresh", refreshHandler)
 
 	httpServer := &http.Server{
 		Addr:     config.ServerAddr,

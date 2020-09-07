@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"time"
 
 	"github.com/camolezi/MicroservicesGolang/src/claims"
 	"github.com/camolezi/MicroservicesGolang/src/debug"
+	"github.com/camolezi/MicroservicesGolang/src/handlers/request"
 	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
 	"github.com/camolezi/MicroservicesGolang/src/services"
 	"github.com/dgrijalva/jwt-go"
@@ -30,35 +30,26 @@ func (p *LoginHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	}
 }
 
-func (p *LoginHandler) authenticate(defaultWriter http.ResponseWriter, request *http.Request) {
-	response := response.CreateResponse(defaultWriter, p.Log)
+func (p *LoginHandler) authenticate(defaultWriter http.ResponseWriter, defaultRequest *http.Request) {
 
-	//For now assume that the user credentials are correct
+	response := response.CreateResponse(defaultWriter, p.Log)
+	request := request.CreateRequest(defaultRequest, p.Log)
+
 	user := struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}{}
-	bodyData, _ := ioutil.ReadAll(request.Body)
-	err := json.Unmarshal(bodyData, &user)
 
+	err := json.NewDecoder(request.GetBody()).Decode(&user)
 	if err != nil {
 		response.BadRequest(err.Error())
 		return
 	}
 
 	err = services.CheckUserCredentials(user.Login, []byte(user.Password))
-
 	if err != nil {
-		response.WriteError(http.StatusUnauthorized, "")
+		response.WriteError(http.StatusUnauthorized, "Credentials not accepted")
 		return
-	}
-
-	claims := claims.Claims{
-		Login: user.Login,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
-			IssuedAt:  time.Now().Unix(),
-		},
 	}
 
 	// Audience  string `json:"aud,omitempty"`
@@ -69,18 +60,28 @@ func (p *LoginHandler) authenticate(defaultWriter http.ResponseWriter, request *
 	// NotBefore int64  `json:"nbf,omitempty"`
 	// Subject   string `json:"sub,omitempty"`
 
+	//Create token
+	claims := claims.Claims{
+		Login: user.Login,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(p.JWTKey)
 
 	if err != nil {
 		response.ServerError(err.Error())
+		return
 	}
 
-	//For now does not have refresh token implemented
+	//Return the token
 	tokenStruct := struct {
-		AccessToken  string `json:"acessToken"`
-		RefreshToken string `json:"refreshToken"`
-	}{AccessToken: signedToken, RefreshToken: "Placeholder"}
+		Login       string `json:"login"`
+		AccessToken string `json:"acessToken"`
+	}{AccessToken: signedToken, Login: user.Login}
 
 	tokenJSON, err := json.Marshal(tokenStruct)
 
