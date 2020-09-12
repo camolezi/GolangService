@@ -20,6 +20,11 @@ func main() {
 		debug: errors, warnings and debug logs`,
 	)
 
+	dbconfig := flag.String("dbconfig",
+		"user=postgres password=userpassword host=localhost port=5432 dbname=db_name pool_max_conns=10",
+		"String defining the configuration for the database connection",
+	)
+
 	flag.Parse()
 
 	var logLevel debug.LogLevel
@@ -36,13 +41,12 @@ func main() {
 
 	//this is obviously a placeholder
 	Secrekey := []byte("mysuperscretekey")
-	RefreshKey := []byte("refreshkeysupersecrete")
 
 	appConfig := app.Config{
-		ServerAddr:    *addr,
-		LogLevel:      logLevel,
-		JWTKey:        Secrekey,
-		RefreshJTWKey: RefreshKey,
+		ServerAddr: *addr,
+		LogLevel:   logLevel,
+		JWTKey:     Secrekey,
+		DBConfig:   *dbconfig,
 	}
 
 	app.StartApp(appConfig)
