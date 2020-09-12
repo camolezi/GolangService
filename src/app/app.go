@@ -1,17 +1,14 @@
 package app
 
 import (
-	"context"
-	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
 	"github.com/camolezi/MicroservicesGolang/src/handlers"
 	"github.com/camolezi/MicroservicesGolang/src/middleware"
 	"github.com/camolezi/MicroservicesGolang/src/mux"
-
-	"github.com/jackc/pgx/v4/pgxpool" // just for test
+	"github.com/camolezi/MicroservicesGolang/src/services/data"
+	// just for test
 )
 
 //Config defines a configuration for starting a App
@@ -26,24 +23,6 @@ type Config struct {
 
 //StartApp is the starting point of the application
 func StartApp(config Config) {
-
-	//Just for test
-	dbpool, err := pgxpool.Connect(context.Background(), config.DBConfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-
-	defer dbpool.Close()
-
-	var greeting string
-	err = dbpool.QueryRow(context.Background(), "SELECT (userPass) FROM account").Scan(&greeting)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Println(greeting)
 
 	logger := debug.NewLogger(config.LogLevel)
 
@@ -94,6 +73,10 @@ func StartApp(config Config) {
 	serverMux.Post("/login", loginHandler)
 	serverMux.Post("/user", userHandler)
 	serverMux.Post("/refresh", refreshHandler)
+
+	//Connect to database
+	data.InitializeDatabase(config.DBConfig, logger)
+	defer data.CloseDatabase()
 
 	httpServer := &http.Server{
 		Addr:     config.ServerAddr,

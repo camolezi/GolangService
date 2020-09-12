@@ -7,17 +7,21 @@ import (
 	"github.com/camolezi/MicroservicesGolang/src/utils"
 )
 
+//PostAccess - Maybe create separated interfaces latter
+type PostAccess interface {
+}
+
 //Mock database for now
-var dbMock = map[uint64]model.Post{
-	0: {ID: 0, Title: "First post ever, you are a lucky guy for seeing this", Body: model.PostBody{Text: "This is the body for first post"}},
-	1: {ID: 1, Title: "Second post ever, you are a lucky guy for seeing this", Body: model.PostBody{Text: "This is the body for Second post"}},
-	2: {ID: 2, Title: "third post ever, you are a lucky guy for seeing this", Body: model.PostBody{Text: "This is the body for third post"}},
-	3: {ID: 3, Title: "forth post ever, you are a lucky guy for seeing this", Body: model.PostBody{Text: "This is the body for forth post"}},
-	4: {ID: 4, Title: "fifth post ever, you are a lucky guy for seeing this", Body: model.PostBody{Text: "This is the body for fifth post"}},
+var dbMock = map[int64]model.Post{
+	0: {ID: 0, Title: "First post ever, you are a lucky guy for seeing this"},
+	1: {ID: 1, Title: "Second post ever, you are a lucky guy for seeing this"},
+	2: {ID: 2, Title: "third post ever, you are a lucky guy for seeing this"},
+	3: {ID: 3, Title: "forth post ever, you are a lucky guy for seeing this"},
+	4: {ID: 4, Title: "fifth post ever, you are a lucky guy for seeing this"},
 }
 
 //GetPost retrieves a post from the database
-func GetPost(id uint64) (model.Post, error) {
+func GetPost(id int64) (model.Post, error) {
 	post, contain := dbMock[id]
 	if !contain {
 		return model.Post{}, &utils.ResourceError{ErrorMessage: "Post not Found"}
@@ -26,7 +30,7 @@ func GetPost(id uint64) (model.Post, error) {
 }
 
 //NewPost creates a new post
-func NewPost(id uint64, post model.Post) error {
+func NewPost(id int64, post model.Post) error {
 	_, contain := dbMock[id]
 	if contain {
 		return errors.New("Post on this ID already exist")

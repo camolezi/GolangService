@@ -59,7 +59,7 @@ func (p *PostHandler) getPost(defaultWriter http.ResponseWriter, request *http.R
 		return
 	}
 
-	post, apiError := p.service.GetPost(id)
+	post, apiError := p.service.GetPost(int64(id))
 	//Api Error
 	if apiError != nil {
 		response.WriteError(apiError.ErrorCode, apiError.ErrorMessage)
@@ -97,7 +97,7 @@ func (p *PostHandler) addPost(defaultWriter http.ResponseWriter, request *http.R
 	}
 
 	//placeholder id
-	postID := uint64(time.Now().Unix()) //This should be probably be coming from the database
+	postID := int64(time.Now().Unix()) //This should be probably be coming from the database
 	newPost.ID = postID
 
 	//Try to create new post

@@ -3,13 +3,16 @@ package model
 import (
 	"encoding/json"
 	"io"
+	"time"
 )
 
 //Post is a struct representing one post
 type Post struct {
-	ID    uint64   `json:"id"`
-	Title string   `json:"title"`
-	Body  PostBody `json:"body"`
+	ID        int64     `json:"id"`
+	Title     string    `json:"title"`
+	Body      *string   `json:"body"`
+	CreatedAt time.Time `json:"createdAt"`
+	UserLogin string    `json:"userLogin"`
 }
 
 //PostBody represents the body of a post, let this be just a string for now

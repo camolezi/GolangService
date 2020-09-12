@@ -9,16 +9,16 @@ import (
 )
 
 type domainMock struct {
-	GetPostMockFunction func(id uint64) (model.Post, error)
+	GetPostMockFunction func(id int64) (model.Post, error)
 }
 
-func (d *domainMock) GetPost(id uint64) (model.Post, error) {
+func (d *domainMock) GetPost(id int64) (model.Post, error) {
 	return d.GetPostMockFunction(id)
 }
 
 func TestGetPost_Error(t *testing.T) {
 	mock := &domainMock{
-		GetPostMockFunction: func(id uint64) (model.Post, error) {
+		GetPostMockFunction: func(id int64) (model.Post, error) {
 			//Does not find the post with specified id
 			return model.Post{}, &utils.ResourceError{ErrorMessage: "Error message"}
 		},
@@ -43,7 +43,7 @@ func TestGetPost_Error(t *testing.T) {
 
 func TestGetPost_Success(t *testing.T) {
 	mock := &domainMock{
-		GetPostMockFunction: func(id uint64) (model.Post, error) {
+		GetPostMockFunction: func(id int64) (model.Post, error) {
 			//Does not find the post with specified id
 			if id == 0 {
 				return model.Post{ID: 0, Title: "This is not a real post"}, nil
