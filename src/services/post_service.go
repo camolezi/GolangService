@@ -27,7 +27,11 @@ func init() {
 //GetPost return a post of the specified id
 func GetPost(id int64) (model.Post, *utils.ErrorAPI) {
 
-	post, resourceError := domainVar.GetPost(id)
+	//For test
+	access := data.CreateDataAccess()
+	post, resourceError := access.GetPost(id)
+
+	//post, resourceError := domainVar.GetPost(id)
 
 	//Post not found
 	if resourceError != nil {

@@ -10,9 +10,9 @@ import (
 type Post struct {
 	ID        int64     `json:"id"`
 	Title     string    `json:"title"`
-	Body      *string   `json:"body"`
 	CreatedAt time.Time `json:"createdAt"`
 	UserLogin string    `json:"userLogin"`
+	Body      *string   `json:"body"`
 }
 
 //PostBody represents the body of a post, let this be just a string for now
