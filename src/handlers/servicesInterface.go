@@ -12,7 +12,7 @@ import (
 //Interface for the services used by this handlers
 type servicesInterface interface {
 	GetPost(id int64) (model.Post, *utils.ErrorAPI)
-	NewPost(id int64, post model.Post) error
+	NewPost(post model.Post) error
 	GetLatestPosts(numberOfPosts uint) ([]model.Post, error)
 }
 
@@ -23,8 +23,8 @@ func (s *servicesWrapper) GetPost(id int64) (model.Post, *utils.ErrorAPI) {
 	return servicesPkg.GetPost(id)
 }
 
-func (s *servicesWrapper) NewPost(id int64, post model.Post) error {
-	return services.NewPost(id, post)
+func (s *servicesWrapper) NewPost(post model.Post) error {
+	return services.NewPost(post)
 }
 
 func (s *servicesWrapper) GetLatestPosts(numberOfPosts uint) ([]model.Post, error) {

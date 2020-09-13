@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
 	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
 	"github.com/camolezi/MicroservicesGolang/src/model"
+	"github.com/camolezi/MicroservicesGolang/src/utils/claims"
 )
 
 //PostHandler is the handler for /post url
@@ -90,18 +90,21 @@ func (p *PostHandler) addPost(defaultWriter http.ResponseWriter, request *http.R
 
 	newPost := model.Post{}
 	errJSON := newPost.FromIOReader(request.Body)
-
 	if errJSON != nil {
 		response.BadRequest(errJSON.Error())
 		return
 	}
 
-	//placeholder id
-	postID := int64(time.Now().Unix()) //This should be probably be coming from the database
-	newPost.ID = postID
+	userLogin, ok := request.Context().Value(claims.KeyLogin).(string)
+	if !ok {
+		response.ServerError("")
+		return
+	}
+
+	newPost.UserLogin = userLogin
 
 	//Try to create new post
-	err := p.service.NewPost(postID, newPost)
+	err := p.service.NewPost(newPost)
 	if err != nil {
 		response.ServerError(err.Error())
 		return

@@ -47,7 +47,7 @@ func GetLatestPosts(numberOfPosts uint) ([]model.Post, error) {
 }
 
 //NewPost trys to Create a new post
-func NewPost(id int64, post model.Post) error {
+func NewPost(post model.Post) error {
 	access := data.CreateDataAccess()
 	return access.CreatePost(post)
 }
