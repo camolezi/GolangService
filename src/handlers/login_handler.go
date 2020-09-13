@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/camolezi/MicroservicesGolang/src/claims"
 	"github.com/camolezi/MicroservicesGolang/src/debug"
 	"github.com/camolezi/MicroservicesGolang/src/handlers/request"
 	"github.com/camolezi/MicroservicesGolang/src/handlers/response"
 	"github.com/camolezi/MicroservicesGolang/src/services"
+	"github.com/camolezi/MicroservicesGolang/src/utils/claims"
 	"github.com/dgrijalva/jwt-go"
 )
 

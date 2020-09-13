@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/camolezi/MicroservicesGolang/src/claims"
 	"github.com/camolezi/MicroservicesGolang/src/debug"
+	"github.com/camolezi/MicroservicesGolang/src/utils/claims"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 

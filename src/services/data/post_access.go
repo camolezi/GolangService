@@ -1,15 +1,62 @@
 package data
 
 import (
+	"context"
 	"errors"
 
 	"github.com/camolezi/MicroservicesGolang/src/model"
 	"github.com/camolezi/MicroservicesGolang/src/utils"
 )
 
+//GetPost retrieves a post from the database
+func (a *Access) GetPost(id int64) (model.Post, error) {
+	post := model.Post{}
+
+	//this is okay because id is a int64- But still need to verify security
+	query := "SELECT * FROM posts WHERE id=$1"
+
+	err := a.database.connection.QueryRow(context.Background(), query, id).
+		Scan(
+			&post.ID,
+			&post.Title,
+			&post.CreatedAt,
+			&post.UserLogin,
+			&post.Body,
+		)
+
+	if err != nil {
+		a.log.Warning().Printf("QueryRow failed: %v\n", err)
+		return model.Post{}, errors.New("post not found")
+	}
+
+	return post, nil
+}
+
+//CreatePost creates a new post
+func (a *Access) CreatePost(post model.Post) error {
+	query := "INSERT INTO posts (createdAt,title,userLogin,body) VALUES(NOW(),$1,$2,$3)"
+
+	tag, err := a.database.connection.Exec(context.Background(), query,
+		post.Title,
+		post.UserLogin,
+		post.Body,
+	)
+
+	a.log.Debug().Println(tag)
+
+	if err != nil {
+		a.log.Warning().Printf("Inserted failed: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
 //PostAccess - Maybe create separated interfaces latter
 type PostAccess interface {
 }
+
+//Mock
 
 //Mock database for now
 var dbMock = map[int64]model.Post{

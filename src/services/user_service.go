@@ -15,10 +15,10 @@ func CreateNewUser(user model.User, password string) error {
 	if err != nil {
 		return err
 	}
-
 	user.HashedPassword = hash
 
-	err = data.CreateUser(user)
+	access := data.CreateDataAccess()
+	err = access.CreateUser(user)
 
 	if err != nil {
 		return err

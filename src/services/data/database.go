@@ -38,15 +38,9 @@ func (d *databaseConnection) initialize() {
 	}
 
 	d.connection = dbpool
+
+	//Create a ping here
 	d.log.Debug().Println("Database connected")
-
-	var greeting string
-	err = dbpool.QueryRow(context.Background(), "SELECT (userPass) FROM account").Scan(&greeting)
-	if err != nil {
-		d.log.Error().Fatalf("QueryRow failed: %v\n", err)
-	}
-
-	d.log.Debug().Println(greeting)
 
 }
 
