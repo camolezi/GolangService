@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/camolezi/MicroservicesGolang/src/debug"
@@ -33,13 +34,15 @@ func (u *UserAuthMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		_, ok := token.Claims.(*claims.Claims)
+		ourclaims, ok := token.Claims.(*claims.Claims)
 		if !ok {
 			writer.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
+		loginCtx := context.WithValue(request.Context(), claims.KeyLogin, ourclaims.Login)
+
 		//Call next function on the chain
-		next(writer, request)
+		next(writer, request.WithContext(loginCtx))
 	}
 }

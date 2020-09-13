@@ -21,20 +21,27 @@ func (u *RefreshHandler) ServeHTTP(writer http.ResponseWriter, request *http.Req
 	u.refreshToken(writer, request)
 }
 
-func (u *RefreshHandler) refreshToken(defaultWriter http.ResponseWriter, defaultRequest *http.Request) {
+func (u *RefreshHandler) refreshToken(defaultWriter http.ResponseWriter, request *http.Request) {
 
 	response := response.CreateResponse(defaultWriter, u.Log)
 	//request := request.CreateRequest(defaultRequest, u.Log)
 
+	userLogin, ok := request.Context().Value(claims.KeyLogin).(string)
+
+	if !ok {
+		response.ServerError("Expected KeyLogin in context")
+	}
+
 	//Create token
-	claims := claims.Claims{
+	_claims := claims.Claims{
+		Login: userLogin,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, _claims)
 	signedToken, err := token.SignedString(u.JWTKey)
 
 	if err != nil {
@@ -45,7 +52,8 @@ func (u *RefreshHandler) refreshToken(defaultWriter http.ResponseWriter, default
 	//Return the token
 	tokenStruct := struct {
 		AccessToken string `json:"acessToken"`
-	}{AccessToken: signedToken}
+		Login       string `json:"login"`
+	}{AccessToken: signedToken, Login: userLogin}
 
 	tokenJSON, err := json.Marshal(tokenStruct)
 	if err != nil {
