@@ -52,6 +52,46 @@ func (a *Access) CreatePost(post model.Post) error {
 	return nil
 }
 
+//GetLatestPosts for now will return posts ordered by data(probably there is a more efficient way to do this)
+func (a *Access) GetLatestPosts(size uint) ([]model.Post, error) {
+	posts := make([]model.Post, 0)
+
+	//this is okay because id is a int64- But still need to verify security
+	query := "SELECT * FROM posts ORDER BY createdAt DESC LIMIT $1"
+
+	rows, err := a.database.connection.Query(context.Background(), query, size)
+	defer rows.Close()
+
+	if err != nil {
+		a.log.Error().Printf("Latest posts query failed %v\n", err)
+		return nil, err
+	}
+
+	for rows.Next() {
+
+		post := model.Post{}
+		err := rows.
+			Scan(
+				&post.ID,
+				&post.Title,
+				&post.CreatedAt,
+				&post.UserLogin,
+				&post.Body,
+			)
+
+		if err != nil {
+			a.log.Warning().Printf("QueryRow failed: %v\n", err)
+			return posts, errors.New("Error querying some of the posts")
+		}
+
+		posts = append(posts, post)
+	}
+
+	//Need to compare tag to see if the number of posts is correct
+	return posts, nil
+
+}
+
 //PostAccess - Maybe create separated interfaces latter
 type PostAccess interface {
 }

@@ -43,7 +43,8 @@ func GetPost(id int64) (model.Post, *utils.ErrorAPI) {
 
 //GetLatestPosts return a array with the latest posts created
 func GetLatestPosts(numberOfPosts uint) ([]model.Post, error) {
-	return data.GetLatestPosts(numberOfPosts)
+	access := data.CreateDataAccess()
+	return access.GetLatestPosts(numberOfPosts)
 }
 
 //NewPost trys to Create a new post
