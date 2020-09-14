@@ -19,7 +19,6 @@ func CreateNewUser(user model.User, password string) error {
 
 	access := data.CreateDataAccess()
 	err = access.CreateUser(user)
-
 	if err != nil {
 		return err
 	}

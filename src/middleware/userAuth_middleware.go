@@ -40,6 +40,7 @@ func (u *UserAuthMiddleware) execute(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		//Add login to the request context- So handlers can use the login value
 		loginCtx := context.WithValue(request.Context(), claims.KeyLogin, ourclaims.Login)
 
 		//Call next function on the chain

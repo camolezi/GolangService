@@ -27,7 +27,7 @@ func init() {
 //GetPost return a post of the specified id
 func GetPost(id int64) (model.Post, *utils.ErrorAPI) {
 
-	//For test
+	//Change data access to a variable to improve performance
 	access := data.CreateDataAccess()
 	post, resourceError := access.GetPost(id)
 

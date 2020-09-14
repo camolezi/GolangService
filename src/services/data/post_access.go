@@ -87,6 +87,10 @@ func (a *Access) GetLatestPosts(size uint) ([]model.Post, error) {
 		posts = append(posts, post)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	//Need to compare tag to see if the number of posts is correct
 	return posts, nil
 

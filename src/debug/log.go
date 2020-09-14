@@ -11,11 +11,11 @@ import (
 type LogLevel int
 
 const (
-	//ErrorLevel abilitates only errors logs
+	//ErrorLevel enable only errors logs
 	ErrorLevel LogLevel = 0
-	//WarningLevel abilitates only errors and warnings
+	//WarningLevel enable only errors and warnings
 	WarningLevel LogLevel = 1
-	//DebugLevel abilidates- debug,warning and errors logs
+	//DebugLevel enable debug,warning and errors logs
 	DebugLevel LogLevel = 2
 )
 

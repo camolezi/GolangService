@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-//SecurityHeadersMiddleware add the security headers in the http response
+//SecurityHeadersMiddleware add recomended security headers in the http response
 type SecurityHeadersMiddleware struct {
 }
 

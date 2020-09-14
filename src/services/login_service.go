@@ -1,8 +1,6 @@
 package services
 
 import (
-	"log"
-
 	"github.com/camolezi/MicroservicesGolang/src/services/data"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,18 +11,13 @@ func CheckUserCredentials(username string, password []byte) error {
 
 	access := data.CreateDataAccess()
 
-	log.Println(username)
 	//This is the password from the db
 	user, err := access.GetUser(username)
-
 	if err != nil {
 		return err
 	}
 
-	log.Printf("%#v", user)
-
 	err = bcrypt.CompareHashAndPassword(user.HashedPassword, password)
-
 	if err != nil {
 		return err
 	}
