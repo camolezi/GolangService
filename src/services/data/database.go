@@ -31,8 +31,14 @@ type databaseConnection struct {
 
 //Initialize try to strat a database connection
 func (d *databaseConnection) initialize() {
-	//Just for test
-	dbpool, err := pgxpool.Connect(context.Background(), d.dbconfig)
+
+	config, err := pgxpool.ParseConfig(d.dbconfig)
+	if err != nil {
+		d.log.Error().Fatalf("[DBCONFIG]: %v\n", err)
+	}
+
+	//Opening connection to database
+	dbpool, err := pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
 		d.log.Error().Fatalf("Unable to connect to database: %v\n", err)
 	}
